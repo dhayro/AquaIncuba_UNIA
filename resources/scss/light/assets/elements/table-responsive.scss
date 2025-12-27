@@ -1,0 +1,215 @@
+/* Responsive Table Styles */
+
+/* Wrapper responsivo para tablas */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 4px;
+    width: 100%;
+    
+    @media (max-width: 768px) {
+        margin: 0 -15px;
+        padding: 0 15px;
+        overflow-x: auto;
+    }
+}
+
+/* Tablas en general */
+.table {
+    margin-bottom: 0;
+    min-width: 500px;
+    
+    thead {
+        th {
+            text-align: center;
+            vertical-align: middle;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        font-size: 13px;
+        min-width: 600px;
+        
+        th {
+            padding: 0.5rem !important;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 0.5rem !important;
+            white-space: nowrap;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 11px;
+            white-space: nowrap;
+            
+            svg {
+                width: 12px !important;
+                height: 12px !important;
+                margin: 0;
+            }
+            
+            span {
+                display: inline;
+                margin-left: 4px;
+            }
+            
+            &.ms-2 {
+                margin-left: 4px !important;
+            }
+        }
+        
+        code {
+            font-size: 11px;
+            padding: 2px 4px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            white-space: nowrap;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        font-size: 11px;
+        min-width: 450px;
+        
+        th {
+            padding: 0.4rem !important;
+            font-size: 9px;
+        }
+        
+        td {
+            padding: 0.4rem !important;
+            font-size: 10px;
+        }
+        
+        .btn-sm {
+            padding: 0.2rem 0.4rem;
+            font-size: 9px;
+            
+            svg {
+                width: 11px !important;
+                height: 11px !important;
+            }
+            
+            span {
+                display: none;
+            }
+        }
+    }
+}
+
+/* Ajustes específicos para DataTables */
+.dataTables_wrapper {
+    .dataTables_length,
+    .dataTables_filter {
+        @media (max-width: 768px) {
+            display: block;
+            margin-bottom: 10px;
+            
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 13px;
+            }
+        }
+    }
+    
+    .dataTables_info {
+        @media (max-width: 768px) {
+            font-size: 12px;
+        }
+    }
+    
+    .dataTables_paginate {
+        @media (max-width: 768px) {
+            .paginate_button {
+                padding: 4px 8px;
+                font-size: 12px;
+                margin: 2px;
+            }
+        }
+    }
+}
+
+/* Columnas con ancho fijo - hacerlas más flexibles en móvil */
+@media (max-width: 768px) {
+    th[width],
+    td[width] {
+        width: auto !important;
+        min-width: auto !important;
+    }
+}
+
+/* Ocultar columnas menos importantes en móvil */
+@media (max-width: 576px) {
+    .hide-on-mobile {
+        display: none;
+    }
+}
+
+/* Estilo especial para filas agrupadas */
+.row-group-header {
+    background-color: #f8f9fa !important;
+    font-weight: 600;
+    
+    @media (max-width: 768px) {
+        padding: 8px 4px !important;
+        white-space: nowrap;
+    }
+}
+
+/* Buttons en tabla - mejor visibilidad */
+.table .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    
+    @media (max-width: 768px) {
+        gap: 2px;
+    }
+}
+
+/* Widget content responsivo */
+.widget-content {
+    @media (max-width: 768px) {
+        padding: 10px 0;
+    }
+}
+
+/* Ajustar las filas de menú */
+.menu-level-0 {
+    font-weight: 600;
+    display: inline-block;
+    word-wrap: break-word;
+    
+    @media (max-width: 768px) {
+        font-size: 13px;
+    }
+}
+
+.menu-level-1 {
+    margin-left: 20px;
+    display: inline-block;
+    word-wrap: break-word;
+    
+    @media (max-width: 768px) {
+        margin-left: 10px;
+        font-size: 12px;
+    }
+}
+
+/* Hacer código más compacto */
+code {
+    word-break: break-word;
+    font-size: inherit;
+}

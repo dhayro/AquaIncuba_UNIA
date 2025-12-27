@@ -1,0 +1,152 @@
+@import '../../base/base';
+
+/* Floating Alert Styles - Dark Mode */
+.floating-alert {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    max-width: 420px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    border-radius: 5px;
+    animation: slideInRight 0.3s ease-out;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 16px 20px;
+    
+    svg {
+        flex-shrink: 0;
+        min-width: 24px;
+        min-height: 24px;
+        margin-top: 2px;
+    }
+    
+    div {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        
+        strong {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+        
+        span {
+            font-size: 13px;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+    }
+    
+    .btn-close {
+        flex-shrink: 0;
+        padding: 0;
+        width: 18px;
+        height: 18px;
+        background: transparent;
+        border: none;
+        opacity: 0.6;
+        cursor: pointer;
+        line-height: 1;
+        
+        &:hover,
+        &:focus {
+            opacity: 1;
+        }
+    }
+    
+    /* Dismiss animation */
+    &.hide {
+        animation: slideOutRight 0.3s ease-in forwards;
+    }
+    
+    @media (max-width: 576px) {
+        left: 10px;
+        right: 10px;
+        bottom: 20px;
+        max-width: calc(100% - 20px);
+    }
+}
+
+/* Alert color variants - Dark Mode */
+.floating-alert.alert-light-success {
+    background-color: #1e4620;
+    border: 1px solid #2a5a2d;
+    color: #7dd87d;
+    
+    svg {
+        stroke: #7dd87d;
+    }
+    
+    .btn-close {
+        color: #7dd87d;
+    }
+}
+
+.floating-alert.alert-light-danger {
+    background-color: #5a2020;
+    border: 1px solid #7a2d2d;
+    color: #ff9999;
+    
+    svg {
+        stroke: #ff9999;
+    }
+    
+    .btn-close {
+        color: #ff9999;
+    }
+}
+
+.floating-alert.alert-light-warning {
+    background-color: #664400;
+    border: 1px solid #995500;
+    color: #ffcc99;
+    
+    svg {
+        stroke: #ffcc99;
+    }
+    
+    .btn-close {
+        color: #ffcc99;
+    }
+}
+
+.floating-alert.alert-light-info {
+    background-color: #1a4d5c;
+    border: 1px solid #266877;
+    color: #7dd9f0;
+    
+    svg {
+        stroke: #7dd9f0;
+    }
+    
+    .btn-close {
+        color: #7dd9f0;
+    }
+}
+
+/* Animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(420px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(420px);
+        opacity: 0;
+    }
+}

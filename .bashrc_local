@@ -1,0 +1,2 @@
+# Add PHP 8.2 to PATH
+export PATH="/c/xampp8.2/php:$PATH"
