@@ -7,6 +7,64 @@
 
 @section('content')
 
+<!-- ✅ TARJETA DE BIENVENIDA Y FLUJO RÁPIDO -->
+<div class="row layout-top-spacing">
+    <div class="col-lg-12">
+        <div class="card" style="border-top: 4px solid #0d6efd;">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div style="font-size: 2.5rem;">👋</div>
+                    </div>
+                    <div class="col">
+                        <h5 class="card-title mb-1">¡Bienvenido a AquaIncuba UNIA!</h5>
+                        <p class="card-text text-muted mb-3">Sistema de Monitoreo de Calidad de Agua en Incubadoras</p>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-circle p-2 me-2" style="font-size: 1.1rem;">1</span>
+                                    <div>
+                                        <strong>Crear Estudio</strong><br>
+                                        <small class="text-muted">Inicia un nuevo ciclo de monitoreo</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-circle p-2 me-2" style="font-size: 1.1rem;">2</span>
+                                    <div>
+                                        <strong>Ver Muestras</strong><br>
+                                        <small class="text-muted">Se crean automáticamente</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-circle p-2 me-2" style="font-size: 1.1rem;">3</span>
+                                    <div>
+                                        <strong>Registrar Lecturas</strong><br>
+                                        <small class="text-muted">Ingresa tus mediciones</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ route('estudios.index') }}" class="btn btn-primary btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Crear mi Primer Estudio
+                            </a>
+                            <a href="{{ route('lecturas.index') }}" class="btn btn-outline-primary btn-sm ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                Ver Lecturas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row layout-top-spacing">
     <!-- Estadísticas Principales -->
     <div class="col-lg-12">
@@ -105,7 +163,7 @@
                                     <h6 class="mb-1">{{ $estudio->nombre }}</h6>
                                     <span class="badge bg-success">Activo</span>
                                 </div>
-                                <p class="mb-1"><small class="text-muted">{{ $estudio->incubadora->nombre }}</small></p>
+                                <p class="mb-1"><small class="text-muted">{{ $estudio->incubadoras->pluck('nombre')->join(', ') ?? 'N/A' }}</small></p>
                                 <small class="text-muted">Inicio: {{ $estudio->fecha_inicio->format('d/m/Y') }}</small>
                             </a>
                         @endforeach

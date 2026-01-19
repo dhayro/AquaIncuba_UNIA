@@ -55,11 +55,6 @@ class Empresa extends Model
         return $this->hasMany(TemaMqtt::class, 'id_empresa');
     }
 
-    public function parametrosEstudio(): HasMany
-    {
-        return $this->hasMany(ParametroEstudio::class, 'id_empresa');
-    }
-
     public function estudiosCalidadAgua(): HasMany
     {
         return $this->hasMany(EstudioCalidadAgua::class, 'id_empresa');

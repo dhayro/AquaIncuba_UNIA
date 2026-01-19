@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('descripcion')->nullable();
             $table->integer('capacidad_tanque')->nullable();
             $table->string('ubicacion')->nullable();
-            $table->string('estado')->default('activo');
+            $table->boolean('activo')->default(true);
             $table->text('especificaciones')->nullable();
             $table->timestamps();
             $table->unique(['id_empresa', 'codigo']);

@@ -7,7 +7,6 @@ use App\Models\Rol;
 use App\Models\Usuario;
 use App\Models\RolUsuario;
 use App\Models\Menu;
-use App\Models\ParametroEstudio;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +32,10 @@ class DatabaseSeeder extends Seeder
         // Crear empresa (sin dependencias)
         $empresa = $this->seedEmpresa();
 
+        // Crear maestros globales (sin dependencias de empresa)
+        $this->seedUnidadesMedida();
+        $this->seedTiposSensores();
+
         // Crear roles (depende de empresa para id_empresa)
         $roles = $this->seedRoles($empresa);
 
@@ -48,8 +51,26 @@ class DatabaseSeeder extends Seeder
         // Asignar permisos a roles (depende de roles y menús)
         $this->seedPermisosMenus($empresa);
 
-        // Crear parámetros de estudio (depende de empresa)
-        $this->seedParametrosEstudio($empresa);
+        // Crear dispositivos MQTT (depende de empresa)
+        $this->call(DispositivoMqttSeeder::class);
+
+        // Crear incubadoras PRIMERO (depende de empresa)
+        $this->call(IncubadoraSeeder::class);
+
+        // Crear los 12 sensores exactos del PLC V4 (depende de empresa e incubadoras)
+        $this->call(SensorPLCSeeder::class);
+
+        // Crear estudios de calidad de agua (depende de incubadoras)
+        $this->call(EstudioCalidadAguaSeeder::class);
+
+        // Crear muestras de estudio (depende de estudios)
+        $this->call(MuestraEstudioSeeder::class);
+
+        // Crear lecturas de sensores para pruebas (depende de sensores)
+        $this->call(LecturaSensorSeeder::class);
+
+        // Crear logs MQTT para testing (depende de dispositivos)
+        $this->call(LogMqttSeeder::class);
 
         $this->command->info('✅ Seeder completado exitosamente');
     }
@@ -79,7 +100,6 @@ class DatabaseSeeder extends Seeder
             
             // Datos principales
             DB::table('menus')->truncate();
-            DB::table('parametros_estudio')->truncate();
             DB::table('usuarios')->truncate();
             DB::table('roles')->truncate();
             DB::table('empresas')->truncate();
@@ -257,15 +277,17 @@ class DatabaseSeeder extends Seeder
                 ['nombre' => 'Dashboard', 'url' => '/dashboard', 'orden' => 1, 'icono' => 'feather feather-home'],
             ],
             'ADMINISTRACIÓN' => [
-                ['nombre' => 'Incubadoras', 'url' => '/admin/incubators', 'orden' => 1, 'icono' => 'feather feather-droplet'],
-                ['nombre' => 'Sensores', 'url' => '/admin/sensors', 'orden' => 2, 'icono' => 'feather feather-activity'],
-                ['nombre' => 'Usuarios', 'url' => '/admin/users', 'orden' => 3, 'icono' => 'feather feather-users'],
-                ['nombre' => 'Roles y Permisos', 'url' => '/admin/roles', 'orden' => 4, 'icono' => 'feather feather-lock'],
-                ['nombre' => 'Menús y Permisos', 'url' => '/admin/menu-permissions', 'orden' => 5, 'icono' => 'feather feather-menu'],
+                ['nombre' => 'Usuarios', 'url' => '/usuarios', 'orden' => 1, 'icono' => 'feather feather-users'],
+                ['nombre' => 'Menús y Permisos', 'url' => '/menu-permissions', 'orden' => 2, 'icono' => 'feather feather-menu'],
+                ['nombre' => 'Roles y Permisos', 'url' => '/roles', 'orden' => 3, 'icono' => 'feather feather-lock'],
+                ['nombre' => 'Unidades de Medida', 'url' => '/unidades-medida', 'orden' => 4, 'icono' => 'feather feather-ruler'],
+                ['nombre' => 'Tipos de Sensores', 'url' => '/tipos-sensores', 'orden' => 5, 'icono' => 'feather feather-layers'],
+                ['nombre' => 'Sensores', 'url' => '/sensores', 'orden' => 6, 'icono' => 'feather feather-activity'],
+                ['nombre' => 'Incubadoras', 'url' => '/incubadoras', 'orden' => 7, 'icono' => 'feather feather-droplet'],
             ],
             'ESTUDIOS' => [
                 ['nombre' => 'Calidad de Agua', 'url' => '/estudios', 'orden' => 1, 'icono' => 'feather feather-droplets'],
-                ['nombre' => 'Parámetros', 'url' => '/parametros', 'orden' => 2, 'icono' => 'feather feather-layers'],
+                ['nombre' => 'Ver Datos', 'url' => '/estudios-datos', 'orden' => 2, 'icono' => 'feather feather-database'],
             ],
             'MONITOREO' => [
                 ['nombre' => 'Lecturas', 'url' => '/lecturas', 'orden' => 1, 'icono' => 'feather feather-zap'],
@@ -291,79 +313,6 @@ class DatabaseSeeder extends Seeder
                 ]));
                 $this->command->line("    ✓ Menú '{$item['nombre']}' creado");
             }
-        }
-    }
-
-    /**
-     * Crear parámetros de estudio
-     */
-    private function seedParametrosEstudio(Empresa $empresa): void
-    {
-        $this->command->info('⚙️  Creando parámetros de estudio...');
-
-        $parametros = [
-            [
-                'codigo' => 'TEMP',
-                'nombre' => 'Temperatura',
-                'unidad' => '°C',
-                'tipo_medicion' => 'automatica',
-                'minimo_optimo' => 25.0,
-                'maximo_optimo' => 30.0,
-                'minimo_critico' => 15.0,
-                'maximo_critico' => 35.0,
-                'decimales' => 2,
-            ],
-            [
-                'codigo' => 'PH',
-                'nombre' => 'pH',
-                'unidad' => '',
-                'tipo_medicion' => 'automatica',
-                'minimo_optimo' => 6.8,
-                'maximo_optimo' => 7.5,
-                'minimo_critico' => 6.0,
-                'maximo_critico' => 8.5,
-                'decimales' => 2,
-            ],
-            [
-                'codigo' => 'DISS_OXY',
-                'nombre' => 'Oxígeno Disuelto',
-                'unidad' => 'ppm',
-                'tipo_medicion' => 'automatica',
-                'minimo_optimo' => 6.0,
-                'maximo_optimo' => 8.5,
-                'minimo_critico' => 4.0,
-                'maximo_critico' => 10.0,
-                'decimales' => 2,
-            ],
-            [
-                'codigo' => 'TURB',
-                'nombre' => 'Turbidez',
-                'unidad' => 'NTU',
-                'tipo_medicion' => 'automatica',
-                'minimo_optimo' => 0.0,
-                'maximo_optimo' => 2.0,
-                'minimo_critico' => 0.0,
-                'maximo_critico' => 5.0,
-                'decimales' => 2,
-            ],
-            [
-                'codigo' => 'COND',
-                'nombre' => 'Conductividad',
-                'unidad' => 'μS/cm',
-                'tipo_medicion' => 'automatica',
-                'minimo_optimo' => 100.0,
-                'maximo_optimo' => 500.0,
-                'minimo_critico' => 50.0,
-                'maximo_critico' => 1000.0,
-                'decimales' => 1,
-            ],
-        ];
-
-        foreach ($parametros as $parametro) {
-            ParametroEstudio::create(array_merge($parametro, [
-                'id_empresa' => $empresa->id,
-            ]));
-            $this->command->line("  ✓ Parámetro '{$parametro['nombre']}' ({$parametro['codigo']}) creado");
         }
     }
 
@@ -400,6 +349,8 @@ class DatabaseSeeder extends Seeder
             'Dashboard',
             'Incubadoras',
             'Sensores',
+            'Tipos de Sensores',
+            'Unidades de Medida',
             'Lecturas',
             'Alertas',
             'Dispositivos',
@@ -422,7 +373,6 @@ class DatabaseSeeder extends Seeder
         $revisorMenus = $menus->whereIn('nombre', [
             'Dashboard',
             'Calidad de Agua',
-            'Parámetros',
             'Lecturas',
         ])->pluck('id');
 
@@ -437,5 +387,126 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         $this->command->line("  ✓ Permisos asignados a rol 'revisor'");
+    }
+
+    /**
+     * Crear unidades de medida maestras
+     */
+    private function seedUnidadesMedida(): void
+    {
+        $this->command->info('📏 Creando unidades de medida...');
+
+        $unidades = [
+            // Temperatura
+            ['nombre' => 'Grados Celsius', 'simbolo' => '°C', 'descripcion' => 'Temperatura en grados Celsius'],
+            ['nombre' => 'Grados Fahrenheit', 'simbolo' => '°F', 'descripcion' => 'Temperatura en grados Fahrenheit'],
+            ['nombre' => 'Kelvin', 'simbolo' => 'K', 'descripcion' => 'Temperatura en Kelvin'],
+            
+            // pH
+            ['nombre' => 'pH', 'simbolo' => 'pH', 'descripcion' => 'Escala de pH (0-14)'],
+            
+            // Concentración
+            ['nombre' => 'Miligramos por Litro', 'simbolo' => 'mg/L', 'descripcion' => 'Concentración en miligramos por litro'],
+            ['nombre' => 'Partes por Millón', 'simbolo' => 'ppm', 'descripcion' => 'Concentración en partes por millón'],
+            ['nombre' => 'Gramos por Litro', 'simbolo' => 'g/L', 'descripcion' => 'Concentración en gramos por litro'],
+            
+            // Conductividad
+            ['nombre' => 'Milisiemens por Centímetro', 'simbolo' => 'mS/cm', 'descripcion' => 'Conductividad eléctrica en milisiemens por centímetro'],
+            ['nombre' => 'Microsiemens por Centímetro', 'simbolo' => 'µS/cm', 'descripcion' => 'Conductividad eléctrica en microsiemens por centímetro'],
+            
+            // Turbidez
+            ['nombre' => 'Unidades de Turbidez Nefelométrica', 'simbolo' => 'NTU', 'descripcion' => 'Unidades de turbidez nefelométrica'],
+            ['nombre' => 'Unidades de Turbidez Formazina', 'simbolo' => 'FTU', 'descripcion' => 'Unidades de turbidez formazina'],
+            
+            // Salinidad
+            ['nombre' => 'Partes por Mil', 'simbolo' => 'ppt', 'descripcion' => 'Salinidad en partes por mil'],
+            ['nombre' => 'PSU', 'simbolo' => 'PSU', 'descripcion' => 'Practical Salinity Unit'],
+            
+            // Presión
+            ['nombre' => 'Bares', 'simbolo' => 'bar', 'descripcion' => 'Presión en bares'],
+            ['nombre' => 'Atmósferas', 'simbolo' => 'atm', 'descripcion' => 'Presión en atmósferas'],
+            ['nombre' => 'Pascales', 'simbolo' => 'Pa', 'descripcion' => 'Presión en Pascales'],
+            
+            // Volumen
+            ['nombre' => 'Litros', 'simbolo' => 'L', 'descripcion' => 'Volumen en litros'],
+            ['nombre' => 'Mililitros', 'simbolo' => 'mL', 'descripcion' => 'Volumen en mililitros'],
+            ['nombre' => 'Metros Cúbicos', 'simbolo' => 'm³', 'descripcion' => 'Volumen en metros cúbicos'],
+            
+            // Oxígeno Disuelto
+            ['nombre' => 'Miligramos de Oxígeno por Litro', 'simbolo' => 'mg O₂/L', 'descripcion' => 'Oxígeno disuelto en agua en miligramos por litro'],
+            ['nombre' => 'Porcentaje de Saturación de Oxígeno', 'simbolo' => '%DO', 'descripcion' => 'Porcentaje de saturación de oxígeno disuelto'],
+            ['nombre' => 'Partes por Millón de Oxígeno', 'simbolo' => 'ppm O₂', 'descripcion' => 'Concentración de oxígeno disuelto en partes por millón'],
+            
+            // Radiación (Luz)
+            ['nombre' => 'Microeinsteins por Metro Cuadrado por Segundo', 'simbolo' => 'µmol/(m².s)', 'descripcion' => 'Radiación fotosintética activa (PAR)'],
+            ['nombre' => 'Luxes', 'simbolo' => 'lux', 'descripcion' => 'Unidad de iluminancia'],
+            ['nombre' => 'Microvatios por Centímetro Cuadrado', 'simbolo' => 'µW/cm²', 'descripcion' => 'Densidad de flujo radiante ultravioleta'],
+            
+            // Alcalinidad
+            ['nombre' => 'Miliequivalentes por Litro', 'simbolo' => 'meq/L', 'descripcion' => 'Alcalinidad total en miliequivalentes'],
+            ['nombre' => 'Milimoles por Litro de CaCO₃', 'simbolo' => 'mmol/L CaCO₃', 'descripcion' => 'Alcalinidad expresada como carbonato de calcio'],
+            
+            // Dureza
+            ['nombre' => 'Grados de Dureza Alemana', 'simbolo' => '°dH', 'descripcion' => 'Dureza total en grados alemanes'],
+            ['nombre' => 'Grados de Dureza Francesa', 'simbolo' => '°fH', 'descripcion' => 'Dureza total en grados franceses'],
+            ['nombre' => 'Partes por Millón de CaCO₃', 'simbolo' => 'ppm CaCO₃', 'descripcion' => 'Dureza total expresada como carbonato de calcio'],
+            
+            // Nutrientes
+            ['nombre' => 'Miligramos de Nitrógeno por Litro', 'simbolo' => 'mg N/L', 'descripcion' => 'Concentración de nitrógeno total'],
+            ['nombre' => 'Miligramos de Fósforo por Litro', 'simbolo' => 'mg P/L', 'descripcion' => 'Concentración de fósforo total'],
+        ];
+
+        foreach ($unidades as $unidad) {
+            DB::table('unidades_medida')->updateOrInsert(
+                ['nombre' => $unidad['nombre']],
+                array_merge($unidad, ['activo' => true])
+            );
+        }
+
+        $this->command->line("  ✓ " . count($unidades) . " unidades de medida creadas");
+    }
+
+    /**
+     * Crear tipos de sensores maestros
+     */
+    private function seedTiposSensores(): void
+    {
+        $this->command->info('🔌 Creando tipos de sensores...');
+
+        $tipos = [
+            [
+                'nombre' => 'Temperatura',
+                'descripcion' => 'Sensor para medir temperatura del agua',
+            ],
+            [
+                'nombre' => 'pH',
+                'descripcion' => 'Sensor para medir el pH del agua',
+            ],
+            [
+                'nombre' => 'Oxígeno Disuelto',
+                'descripcion' => 'Sensor para medir oxígeno disuelto en el agua',
+            ],
+            [
+                'nombre' => 'Conductividad',
+                'descripcion' => 'Sensor para medir conductividad eléctrica del agua',
+            ],
+            [
+                'nombre' => 'Turbidez',
+                'descripcion' => 'Sensor para medir turbidez del agua',
+            ],
+            [
+                'nombre' => 'Salinidad',
+                'descripcion' => 'Sensor para medir salinidad del agua',
+            ],
+        ];
+
+        foreach ($tipos as $tipo) {
+            DB::table('tipo_sensores')->updateOrInsert(
+                ['nombre' => $tipo['nombre']],
+                array_merge($tipo, ['activo' => true])
+            );
+        }
+
+        $this->command->line("  ✓ " . count($tipos) . " tipos de sensores creados");
     }
 }

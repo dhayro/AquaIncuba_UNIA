@@ -67,6 +67,18 @@ class MuestraEstudioController extends Controller
         $estudio = EstudioCalidadAgua::where('id_empresa', $empresaId)
             ->findOrFail($request->id_estudio_calidad_agua);
 
+        // ✅ Validar que el estudio esté activo (no finalizado)
+        if (strtolower($estudio->estado) === 'finalizado') {
+            return redirect()->back()
+                ->with('error', '❌ No puedes crear muestras en un estudio finalizado.');
+        }
+
+        // ✅ Validar que la fecha no haya pasado
+        if ($estudio->fecha_fin && $estudio->fecha_fin->format('Y-m-d') < now()->format('Y-m-d')) {
+            return redirect()->back()
+                ->with('error', '❌ La fecha fin del estudio ha pasado. No puedes crear muestras.');
+        }
+
         MuestraEstudio::create([
             'id_estudio_calidad_agua' => $request->id_estudio_calidad_agua,
             'numero_muestra' => $request->numero_muestra,

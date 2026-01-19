@@ -21,7 +21,7 @@ class DashboardController extends Controller
         // Estadísticas principales
         $totalIncubadoras = Incubadora::where('id_empresa', $empresaId)->count();
         $totalSensores = Sensor::where('id_empresa', $empresaId)->count();
-        $totalEstudios = EstudioCalidadAgua::whereHas('incubadora', function ($query) use ($empresaId) {
+        $totalEstudios = EstudioCalidadAgua::whereHas('incubadoras', function ($query) use ($empresaId) {
             $query->where('id_empresa', $empresaId);
         })->count();
         $totalUsuarios = Usuario::where('id_empresa', $empresaId)->count();
@@ -42,14 +42,14 @@ class DashboardController extends Controller
             ->get();
 
         // Estudios en progreso
-        $estudiosActivos = EstudioCalidadAgua::whereHas('incubadora', function ($query) use ($empresaId) {
+        $estudiosActivos = EstudioCalidadAgua::whereHas('incubadoras', function ($query) use ($empresaId) {
                 $query->where('id_empresa', $empresaId);
             })
             ->where(function ($query) {
                 $query->whereNull('fecha_fin')
                       ->orWhere('fecha_fin', '>', now());
             })
-            ->with('incubadora')
+            ->with('incubadoras')
             ->limit(5)
             ->get();
 

@@ -16,11 +16,9 @@ return new class extends Migration
             $table->foreignId('id_empresa')->constrained('empresas')->onDelete('cascade');
             $table->string('codigo')->unique();
             $table->string('nombre');
-            $table->string('tipo_sensor');
             $table->text('descripcion')->nullable();
             $table->foreignId('id_dispositivo_mqtt')->nullable()->constrained('dispositivos_mqtt')->onDelete('set null');
             $table->string('tema_mqtt');
-            $table->string('unidad');
             $table->float('minimo_optimo')->nullable();
             $table->float('maximo_optimo')->nullable();
             $table->float('minimo_critico')->nullable();

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('id_incubadora')->constrained('incubadoras')->onDelete('cascade');
             $table->foreignId('id_sensor')->constrained('sensores')->onDelete('cascade');
             $table->integer('orden_posicion')->default(0);
-            $table->boolean('esta_activo')->default(true);
+            $table->boolean('activo')->default(true);
             $table->text('notas_instalacion')->nullable();
             $table->timestamp('fecha_instalacion')->nullable();
             $table->timestamps();
